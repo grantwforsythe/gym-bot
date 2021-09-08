@@ -1,13 +1,13 @@
-# TODO: Log registered time slot into Google Calendar
+#!/usr/local/bin/python3
+
 from selenium import webdriver
 
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 
-from selenium.common.exceptions import ElementClickInterceptedException, TimeoutException
+from selenium.common.exceptions import TimeoutException
 
 import os
 import sys
@@ -15,6 +15,9 @@ import time
 from pathlib import PureWindowsPath
 from dotenv import load_dotenv
 
+from utils.google import create_service, create_event
+
+# TODO: move the logger config into its own module 
 import logging
 
 
@@ -26,6 +29,11 @@ logging.basicConfig(
 
 # TODO: make this more reproducible
 PATH = PureWindowsPath("c:/Program Files (x86)/geckodriver.exe")
+CLIENT_SECRET_FILE = 'credentials.json'
+API_NAME = 'calendar'
+API_VERSION = 'v3'
+SCOPES = ['https://www.googleapis.com/auth/calendar']
+CALENDAR_ID = 'primary'
 
 try: 
     load_dotenv()
@@ -41,7 +49,7 @@ options.add_argument("--headless")
 driver = webdriver.Firefox(
     executable_path=PATH,
     options=options
-    )
+)
 
 
 def main():
@@ -81,7 +89,6 @@ def main():
                 slot.click()
                 time.sleep(5)
                 reserve(driver)
-                sys.exit(0)
             else:
                 logging.info(f"{slot.text} unavailable.")
 
@@ -95,6 +102,7 @@ def reserve(driver: webdriver.Firefox):
     """ Pass all screening questions and register """
 
     logging.info("Registering...")
+    time.sleep(5)
 
     try:
         Select(driver.find_element_by_id("0e444062-373b-41f8-96d7-3e415856df88")).select_by_visible_text("General Use")
@@ -106,15 +114,43 @@ def reserve(driver: webdriver.Firefox):
             EC.presence_of_element_located((By.ID, "reserve-next"))
         ).click()
 
-        WebDriverWait(driver, 10).until(
+        confirm = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "book-reserve"))
-        ).click()
+        )
         
     except TimeoutException:
-        logging.error("Unable to register.")
+        logging.error("Timed out while registering.")
         driver.quit()
         sys.exit(4)
+
+    if confirm.is_enabled():
+        confirm.click()
+        service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+    else:
+       logging.error('Conflict Resolution Required.')
+       driver.quit()
+       sys.exit(5)
+
+    service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+
+    """
+    Creating event
+    """
+
+    # TODO: convert AM/PM into 24 hours
+    start_hour = 18
+    # start_hour = int(driver.find_element_by_id('timepicker-date-time-picker-startf5de562d-d7dd-4e90-9052-480a92ba0b19-day-mode').get_attribute("value"))
+    stop_hour = start_hour + 1
+    response = service.events().insert(
+        calendarId=CALENDAR_ID,
+        body=create_event(start_hour, stop_hour)
+    ).execute()
+
+    logging.info(f"Event created: {response.get('htmlLink')}")
 
 
 if __name__ == "__main__":
     main()
+    print("Closing connection to driver.")
+    driver.quit()
+    sys.exit(0)
