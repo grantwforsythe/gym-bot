@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 
 import logging
 
+
 logging.basicConfig(
     filename="registration.log", 
     level=logging.INFO,
@@ -43,32 +44,7 @@ driver = webdriver.Firefox(
     )
 
 
-def reserve(driver: webdriver.Firefox):
-    """ Pass all screening questions and register """
-
-    logging.info("Registering...")
-
-    try:
-        Select(driver.find_element_by_id("0e444062-373b-41f8-96d7-3e415856df88")).select_by_visible_text("General Use")
-        Select(driver.find_element_by_id("635561e2-4bd3-47fb-996a-0a64a58832b2")).select_by_visible_text("No")
-        Select(driver.find_element_by_id("61eec9a7-9409-4023-8707-d4f129e6e8ec")).select_by_visible_text("No")
-        Select(driver.find_element_by_id("c9fb4519-dc23-430c-a849-0fd01eb51a33")).select_by_visible_text("No")
-
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "reserve-next"))
-        ).click()
-
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "book-reserve"))
-        ).click()
-        
-    except TimeoutException:
-        logging.error("Unable to register.")
-        driver.quit()
-        sys.exit(4)
-
-
-if __name__ == "__main__":
+def main():
     driver.get("https://my.qreserve.com/login")
 
     # sign in
@@ -113,3 +89,32 @@ if __name__ == "__main__":
         logging.error("Unable to find available slots.")
         driver.quit()
         sys.exit(3)
+
+
+def reserve(driver: webdriver.Firefox):
+    """ Pass all screening questions and register """
+
+    logging.info("Registering...")
+
+    try:
+        Select(driver.find_element_by_id("0e444062-373b-41f8-96d7-3e415856df88")).select_by_visible_text("General Use")
+        Select(driver.find_element_by_id("635561e2-4bd3-47fb-996a-0a64a58832b2")).select_by_visible_text("No")
+        Select(driver.find_element_by_id("61eec9a7-9409-4023-8707-d4f129e6e8ec")).select_by_visible_text("No")
+        Select(driver.find_element_by_id("c9fb4519-dc23-430c-a849-0fd01eb51a33")).select_by_visible_text("No")
+
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "reserve-next"))
+        ).click()
+
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "book-reserve"))
+        ).click()
+        
+    except TimeoutException:
+        logging.error("Unable to register.")
+        driver.quit()
+        sys.exit(4)
+
+
+if __name__ == "__main__":
+    main()
