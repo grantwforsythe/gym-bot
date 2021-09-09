@@ -1,4 +1,3 @@
-# TODO: replace print statements with logging.info 
 import os
 from google.auth.environment_vars import CREDENTIALS
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -8,8 +7,19 @@ from google.oauth2.credentials import Credentials
 
 from .util import convert_to_RFC_datetime
 
+import logging
 
-COLOUR_ID = 5
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
+
+file_handler = logging.FileHandler('google.log')
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+
+COLOUR_ID = 5  # yellow
 
 
 def create_service(client_secret_file, api_name, api_version, *scopes): 
@@ -20,7 +30,6 @@ def create_service(client_secret_file, api_name, api_version, *scopes):
     SCOPES = [scope for scope in scopes[0]]
     
     cred = None
-    print(os.getcwd())
 
     if os.path.exists('token.json'):
         cred = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -36,11 +45,10 @@ def create_service(client_secret_file, api_name, api_version, *scopes):
             token.write(cred.to_json())
     try:
         service = build(API_SERVICE_NAME, API_VERSION, credentials=cred)
-        print(API_SERVICE_NAME, 'service created successfully')
+        logger.info(API_SERVICE_NAME, 'service created successfully')
         return service
     except Exception as e:
-        print(e)
-        print(f'Failed to create service instance for {API_SERVICE_NAME}')
+        logger.info(f'Error: {e}. Failed to create service instance for {API_SERVICE_NAME}')
         return None
 
 

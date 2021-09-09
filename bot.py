@@ -16,11 +16,15 @@ from utils.google import create_service, create_event
 
 import logging
 
-logging.basicConfig(
-    filename="registration.log", 
-    level=logging.INFO,
-    format="%(asctime)s:%(levelname)s:%(message)s"
-)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
+
+file_handler = logging.FileHandler('registration.log')
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
 
 DRIVER = os.getenv("DRIVER")
 EMAIL = os.getenv("EMAIL")
@@ -42,21 +46,21 @@ def run(driver: webdriver, add_event: bool):
     try:
         login(driver)
     except Exception as e:
-        logging.exception('Failed to login: ' + str(e))
+        logger.exception('Failed to login: ' + str(e))
         driver.quit()
         sys.exit(1)
 
     try:
         navigate(driver)
     except Exception as e:
-        logging.exception('Failed to navigate: ' + str(e))
+        logger.exception('Failed to navigate: ' + str(e))
         driver.quit()
         sys.exit(2)
 
     try:
         find_time_slot(driver)
     except TimeoutException:
-        logging.error('Unable to find available slots.')
+        logger.error('Unable to find available slots.')
         driver.quit()
         sys.exit(3)
     
@@ -67,12 +71,12 @@ def run(driver: webdriver, add_event: bool):
 def login(driver):
     """ Login to webpage """
     try:
-        logging.info('Requesting page: ' + GYM_HOME_URL)
+        logger.info('Requesting page: ' + GYM_HOME_URL)
         driver.get(GYM_HOME_URL)
     except TimeoutException:
-        logging.info('Page load timed out but continuing anyway')
+        logger.info('Page load timed out but continuing anyway')
     
-    logging.info('Entering username and password')
+    logger.info('Entering username and password')
     email_input = driver.find_element_by_id('email-address')
     email_input.clear()
     email_input.send_keys(EMAIL)
@@ -81,10 +85,10 @@ def login(driver):
     password_input.clear()
     password_input.send_keys(PASSWORD)
     
-    logging.info('Logging in')
+    logger.info('Logging in')
     driver.find_element_by_id('sign-in').click()
     
-    logging.info('Successfully logged in')
+    logger.info('Successfully logged in')
 
 
 def navigate(driver):
@@ -106,16 +110,16 @@ def find_time_slot(driver):
 
     for slot in slots:
         if slot.is_enabled():
-            logging.info(f'{slot.text} available.')
+            logger.info(f'{slot.text} available.')
             slot.click()
             reserve(driver)
         else:
-            logging.info(f'{slot.text} unavailable.')
+            logger.info(f'{slot.text} unavailable.')
 
 
 def reserve(driver):
     """ Pass all screening questions and register """
-    logging.info('Registering for first available timeslot.')
+    logger.info('Registering for first available timeslot.')
     time.sleep(10)  # wait for contents to load
 
     try:
@@ -132,15 +136,15 @@ def reserve(driver):
             EC.presence_of_element_located((By.ID, 'book-reserve'))
         )
     except TimeoutException:
-        logging.error('Timed out while registering.')
+        logger.error('Timed out while registering.')
         driver.quit()
         sys.exit(4)
 
     if confirm.is_enabled():
         confirm.click()
-        logging.info('Successfully registered for the gym.')
+        logger.info('Successfully registered for the gym.')
     else:
-       logging.error('Conflict Resolution Required.')
+       logger.error('Conflict Resolution Required.')
        driver.quit()
        sys.exit(5)
 
@@ -151,13 +155,13 @@ def add_to_calendar(driver):
 
     # TODO: convert AM/PM into 24 hours
     start_hour = int(driver.find_elements_by_id('timepicker-date-time-picker-start6b7fc49d-4f95-4dfb-9252-a191debbe40a-day-mode').get_attribute("value"))
-    stop_hour = start_hour + 1
+    stop_hour = start_hour + 1  # at present, you are only given an hour to workout
     response = service.events().insert(
         calendarId=CALENDAR_ID,
         body=create_event(start_hour, stop_hour)
     ).execute()
 
-    logging.info(f"Event created: {response.get('htmlLink')}")
+    logger.info(f"Event created: {response.get('htmlLink')}")
 
 
 if __name__ == '__main__':
