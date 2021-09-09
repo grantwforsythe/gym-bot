@@ -1,4 +1,4 @@
-# source: https://learndataanalysis.org/google-py-file-source-code/
+# TODO: replace print statements with logging.info 
 import os
 from google.auth.environment_vars import CREDENTIALS
 from google_auth_oauthlib.flow import InstalledAppFlow
