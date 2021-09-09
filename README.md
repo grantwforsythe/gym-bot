@@ -28,4 +28,9 @@ $ python3 -m venv venv && source venv/bin/activate
 ```
 6. **(Warning)** If met with a `403` when trying to access your calendar, refer to [this thread](https://stackoverflow.com/questions/65756266/error-403-access-denied-the-developer-hasn-t-given-you-access-to-this-app-despi) 
 7. (Optional) To automatically run the bot, edit `scripts.sh` and schedule a `cronjob`
-
+## Configuartion Options
+Here is a list and description of the different arguments to use for the bot:
+**--headless**
+* Run the bot in headless mode
+**--add-event**
+* Create an event in Google Calendar
