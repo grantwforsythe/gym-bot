@@ -14,6 +14,7 @@ sudo mv geckodriver /usr/local/bin/
 ```bash
 export EMAIL=<your-email@gmail.com>
 export PASSWORD=<your-password>
+export DRIVER=</path/to/geckodriver>
 ```
 3. Follow [this guide](https://developers.google.com/calendar/api/quickstart/python?hl=en_GB) to access Google's Calendar API and move `credentials.json` to the root of this repository
 4. Install the dependencies
@@ -23,6 +24,6 @@ pip3 install -r requirements.txt
 ```
 5. Run the program
 ```bash
-./bot.py
+python3 -m bot
 ```
 6. **(Warning)** If met with a `403` when trying to access your calendar, refer to [this thread](https://stackoverflow.com/questions/65756266/error-403-access-denied-the-developer-hasn-t-given-you-access-to-this-app-despi) 
