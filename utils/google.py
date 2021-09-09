@@ -49,6 +49,8 @@ def create_event(start_hour, stop_hour):
     start_hour = convert_to_RFC_datetime(start_hour)
     stop_hour = convert_to_RFC_datetime(stop_hour)
 
+    # TODO: Update the quote each time
+
     event = {
         'summary': 'Gym',
         'description': 'Strength does not come from winning. Your struggles develop your strengths. When you go through hardships and decide not to surrender, that is strength. - Arnold Schwarzenegger',
