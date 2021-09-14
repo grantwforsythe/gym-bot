@@ -29,6 +29,7 @@ $ python3 -m venv venv && source venv/bin/activate
 6. (Warning) If met with a `403` when trying to access your calendar, refer to [this thread](https://stackoverflow.com/questions/65756266/error-403-access-denied-the-developer-hasn-t-given-you-access-to-this-app-despi) 
 7. (Optional) To automatically run the bot, edit [scripts.sh](scripts.sh) and schedule a `cronjob`
 ```vim
+" runs every Mon-Fri at midnight
 0 0 * * 1-5 bash /path/to/scripts.sh
 ```
 ## Configuartion Options
