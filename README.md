@@ -2,6 +2,7 @@
 ## Overview
 A bot that reserves the earliest available time slot at [Fitness@MIP](https://mcmasterinnovationpark.ca/fitness) and makes a note of the event in a Google Calendar. 
 ## Set Up
+### Unix/Linux
 To implement this, clone this repository and follow the steps below:
 1. Download the Firefox webdriver, `geckodriver`, and have it on your `PATH` 
 ```bash
@@ -31,6 +32,20 @@ $ python3 -m venv venv && source venv/bin/activate
 ```vim
 " runs every Mon-Fri at midnight
 0 0 * * 1-5 bash /path/to/scripts.sh
+```
+### Docker
+1. Update `ENV` variables
+```docker
+ENV EMAIL=your-email@gmail.com
+ENV PASSWORD=your-password
+```
+2. Build the image
+```docker
+docker build -t gym-bot 
+```
+3. Create a container
+```docker
+docker run -ti gym-bot
 ```
 ## Configuartion Options
 Here is a list and description of the different arguments to use for the bot:
