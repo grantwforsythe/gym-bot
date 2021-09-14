@@ -1,7 +1,8 @@
-.env
+# environment
 __pycache__/
 .vscode/
-.venv/
 venv/
+
+# logs and config
 *.log
 *.json
