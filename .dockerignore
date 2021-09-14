@@ -1,0 +1,13 @@
+# environment
+__pycache__/
+.vscode/
+venv/
+
+# logs and config
+*.log
+*.json
+
+# misc
+LICENSE
+README.md
+scripts.sh
